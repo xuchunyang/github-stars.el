@@ -1,0 +1,5 @@
+# Compiled
+*.elc
+
+# Ghub (for Makefile)
+/ghub.el
