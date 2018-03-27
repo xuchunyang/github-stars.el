@@ -1,5 +1,10 @@
 # github-stars.el -- Browse your Github Stars
 
+## Dependencies
+
+- Emacs 25.1 or later
+- ghub.el
+
 ## Usage
 
 ### `M-x github-stars-browse-url`
