@@ -57,25 +57,26 @@
 
 (defun github-stars--report-progress ()
   (let-alist (github-stars--read-link-header)
-    (and .next .last
-         (let ((message-log-max nil))
-           (message "github-stars: (%s) Fetching your github stars [%s/%s]..."
-                    (format-time-string "%H:%M:%S")
-                    .next .last)))))
+    (if .next
+        (let ((message-log-max nil))
+          (message "github-stars: (%s) Fetching your github stars [%s/%s]..."
+                   (format-time-string "%H:%M:%S")
+                   .next .last))
+      (message nil))))
 
 (defun github-stars--read-response (status)
   (let ((list (ghub--read-json-payload status)))
-    (github-stars--report-progress)
-    (mapcar (lambda (alist)
-              (let-alist alist
-                (list (cons 'starred-at  .starred_at)
-                      (cons 'owner/name  .repo.full_name)
-                      (cons 'owner       .repo.owner.login)
-                      (cons 'name        .repo.name)
-                      (cons 'url         .repo.html_url)
-                      (cons 'description .repo.description)
-                      (cons 'language    .repo.language))))
-            list)))
+    (prog1 (mapcar (lambda (alist)
+                     (let-alist alist
+                       (list (cons 'starred-at  .starred_at)
+                             (cons 'owner/name  .repo.full_name)
+                             (cons 'owner       .repo.owner.login)
+                             (cons 'name        .repo.name)
+                             (cons 'url         .repo.html_url)
+                             (cons 'description .repo.description)
+                             (cons 'language    .repo.language))))
+                   list)
+      (github-stars--report-progress))))
 
 (defvar github-stars nil)
 
