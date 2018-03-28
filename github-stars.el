@@ -34,8 +34,6 @@
 (defvar github-stars-github-token-scopes '()
   "The Github API scopes needed by github-stars.")
 
-(defvar github-stars nil)
-
 (defun github-stars--read-link-header ()
   (let* ((link (cdr (assoc "Link" ghub-response-headers)))
          (links (and link
@@ -78,6 +76,8 @@
                       (cons 'description .repo.description)
                       (cons 'language    .repo.language))))
             list)))
+
+(defvar github-stars nil)
 
 (defun github-stars ()
   "Return hash table listing github stars."
