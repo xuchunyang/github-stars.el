@@ -93,7 +93,8 @@
       (puthash (let-alist alist .owner/name) alist github-stars)))
   github-stars)
 
-(defun github-stars-find-duplicates (list)
+;; https://emacs.stackexchange.com/questions/31448/report-duplicates-in-a-list
+(defun github-stars--find-duplicates (list)
   (let ((table (make-hash-table :test #'equal))
         result)
     (dolist (x list)
@@ -104,12 +105,12 @@
              table)
     result))
 
-(defun github-stars-repos-uniquify ()
+(defun github-stars--names-uniquify ()
   (let* ((names (map-apply
                  (lambda (_ alist)
                    (let-alist alist .name))
                  (github-stars)))
-         (dups (github-stars-find-duplicates names)))
+         (dups (github-stars--find-duplicates names)))
     (map-apply
      (lambda (key alist)
        (let-alist alist
@@ -118,15 +119,16 @@
            (cons .name key))))
      (github-stars))))
 
-(defun github-stars-repos-read ()
+(defun github-stars--completing-read ()
   (let* ((alist (github-stars-repos-uniquify))
          (uniquified (completing-read "Browse Github Star: " alist nil t)))
     (cdr (assoc uniquified alist))))
 
 ;;;###autoload
-(defun github-stars-browse-url (repo)
-  (interactive (list (github-stars-repos-read)))
-  (browse-url (concat "https://github.com/" repo)))
+(defun github-stars-browse-url (owner/name)
+  "Prompt you for one of your github stars and open it in the web browser."
+  (interactive (list (github-stars--completing-read)))
+  (browse-url (concat "https://github.com/" owner/name)))
 
 (provide 'github-stars)
 ;;; github-stars.el ends here
