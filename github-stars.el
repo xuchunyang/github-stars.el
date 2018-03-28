@@ -37,7 +37,7 @@
 (defvar github-stars nil)
 
 (defun github-stars--read-response (status)
-  (let ((list (ghub--read-json-response status)))
+  (let ((list (ghub--read-json-payload status)))
     (mapcar (lambda (alist)
               (let-alist alist
                 (list (cons 'starred-at  .starred_at)
