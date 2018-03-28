@@ -30,23 +30,37 @@
 (require 'ghub)
 (require 'let-alist)
 (require 'map)
-(require 'seq)
 
 (defvar github-stars-github-token-scopes '()
   "The Github API scopes needed by github-stars.")
 
 (defvar github-stars nil)
 
+(defun github-stars--read-response (status)
+  (let ((list (ghub--read-json-response status)))
+    (mapcar (lambda (alist)
+              (let-alist alist
+                (list (cons 'starred-at  .starred_at)
+                      (cons 'owner/name  .repo.full_name)
+                      (cons 'owner       .repo.owner.login)
+                      (cons 'name        .repo.name)
+                      (cons 'url         .repo.html_url)
+                      (cons 'description .repo.description)
+                      (cons 'language    .repo.language))))
+            list)))
+
 (defun github-stars ()
   "Return hash table listing github stars."
   (unless github-stars
     (setq github-stars (make-hash-table :test #'equal))
     (dolist (alist (ghub-get "/user/starred" nil
+                             :query '((per_page . "100"))
                              :headers '(("Accept" .
                                          "application/vnd.github.v3.star+json"))
                              :unpaginate t
+                             :reader #'github-stars--read-response
                              :auth 'github-stars))
-      (puthash (let-alist alist .repo.full_name) alist github-stars )))
+      (puthash (let-alist alist .owner/name) alist github-stars)))
   github-stars)
 
 (defun github-stars-find-duplicates (list)
@@ -62,19 +76,16 @@
 
 (defun github-stars-repos-uniquify ()
   (let* ((names (map-apply
-                 (lambda (_key value)
-                   (let-alist value .repo.name))
+                 (lambda (_ alist)
+                   (let-alist alist .name))
                  (github-stars)))
          (dups (github-stars-find-duplicates names)))
     (map-apply
-     (lambda (_key value)
-       (seq-let (owner/name owner name) (let-alist value
-                                          (list .repo.full_name
-                                                .repo.owner.login
-                                                .repo.name))
-         (if (member name dups)
-             (cons (concat name "\\" owner) owner/name)
-           (cons name owner/name))))
+     (lambda (key alist)
+       (let-alist alist
+         (if (member .name dups)
+             (cons (concat .name "\\" .owner) key)
+           (cons .name key))))
      (github-stars))))
 
 (defun github-stars-repos-read ()
