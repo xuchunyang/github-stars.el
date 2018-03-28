@@ -36,8 +36,38 @@
 
 (defvar github-stars nil)
 
+(defun github-stars--read-link-header ()
+  (let* ((link (cdr (assoc "Link" ghub-response-headers)))
+         (links (and link
+                     (mapcar (lambda (elt) (split-string elt "; "))
+                             (split-string link ","))))
+         next last first prev
+         match)
+    (when links
+      (pcase-dolist (`(,target ,rel) links)
+        (when (string-match "[?&]page=\\([^&>]+\\)" target)
+          (setq match (match-string 1 target))
+          (pcase rel
+            ("rel=\"next\""  (setq next match))
+            ("rel=\"last\""  (setq last match))
+            ("rel=\"first\"" (setq first match))
+            ("rel=\"prev\""  (setq prev match)))))
+      `((next  . ,next)
+        (last  . ,last)
+        (first . ,first)
+        (prev  . ,prev)))))
+
+(defun github-stars--report-progress ()
+  (let-alist (github-stars--read-link-header)
+    (and .next .last
+         (let ((message-log-max nil))
+           (message "github-stars: (%s) Fetching your github stars [%s/%s]..."
+                    (format-time-string "%H:%M:%S")
+                    .next .last)))))
+
 (defun github-stars--read-response (status)
   (let ((list (ghub--read-json-payload status)))
+    (github-stars--report-progress)
     (mapcar (lambda (alist)
               (let-alist alist
                 (list (cons 'starred-at  .starred_at)
