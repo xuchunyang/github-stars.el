@@ -11,6 +11,6 @@
 
 Prompt you for one of your github stars and open it in the web browser.
 
-### TODO `M-x github-stars-list`
+### `M-x github-stars-list`
 
 Display a list of your github stars.

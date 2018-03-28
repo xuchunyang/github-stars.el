@@ -31,6 +31,10 @@
 (require 'let-alist)
 (require 'map)
 
+(defgroup github-stars nil
+  "Browse your github stars."
+  :group 'tools)
+
 (defvar github-stars-github-token-scopes '()
   "The Github API scopes needed by github-stars.")
 
@@ -121,7 +125,7 @@
      (github-stars))))
 
 (defun github-stars--completing-read ()
-  (let* ((alist (github-stars-repos-uniquify))
+  (let* ((alist (github-stars--names-uniquify))
          (uniquified (completing-read "Browse Github Star: " alist nil t)))
     (cdr (assoc uniquified alist))))
 
@@ -130,6 +134,97 @@
   "Prompt you for one of your github stars and open it in the web browser."
   (interactive (list (github-stars--completing-read)))
   (browse-url (concat "https://github.com/" owner/name)))
+
+
+;;; Listing
+
+(defun github-stars-list-columns-name (owner/name)
+  (alist-get 'name (gethash owner/name (github-stars))))
+
+(defun github-stars-list-columns-starred-at (owner/name)
+  (let ((string (alist-get 'starred-at (gethash owner/name (github-stars)))))
+    ;; NOTE One can use `parse-iso8601-time-string' to parse the string
+    ;; IDEA Use human-readable format, such as "19 days ago"
+    (substring string 0 (length "1999-12-31"))))
+
+(defun github-stars-list-columns-description (owner/name)
+  (alist-get 'description (gethash owner/name (github-stars))))
+
+(defcustom github-stars-list-columns
+  '(("Name"        25 github-stars-list-columns-name nil)
+    ("Starred"     14 github-stars-list-columns-starred-at nil)
+    ("Description" 99 github-stars-list-columns-description nil))
+  "List of columns displayed by `github-stars-list'.
+
+Each element has the form (HEADER WIDTH FORMAT PROPS).
+
+HEADER is the string displayed in the header.  WIDTH is the width
+of the column.  FORMAT is a function that is called with one
+argument, one key of the hash table `github-stars', i.e., owner/name.
+It has to return a string to be inserted or nil.  PROPS is
+an alist that supports the keys `:right-align' and `:pad-right'."
+  :group 'github-stars
+  :type `(repeat (list :tag "Column"
+                       (string   :tag "Header Label")
+                       (integer  :tag "Column Width")
+                       (function :tag "Inserter Function")
+                       (repeat   :tag "Properties"
+                                 (list (choice :tag "Property"
+                                               (const :right-align)
+                                               (const :pad-right)
+                                               (symbol))
+                                       (sexp   :tag "Value"))))))
+
+(defcustom github-stars-list-mode-hook '(hl-line-mode)
+  "Hook run after entering Github-Stars-List mode."
+  :group 'github-stars
+  :type 'hook
+  :options '(hl-line-mode))
+
+(defvar github-stars-list-mode-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map tabulated-list-mode-map)
+    (define-key map (kbd "C-m") #'github-stars-list-browse-url)
+    map)
+  "Local keymap for Github-Stars-List mode buffers.")
+
+(defun github-stars-list-browse-url ()
+  "Browse url of the star at point."
+  (interactive)
+  (let ((owner/name (tabulated-list-get-id)))
+    (if owner/name
+        (github-stars-browse-url owner/name)
+      (user-error "There is no star at point"))))
+
+(define-derived-mode github-stars-list-mode tabulated-list-mode "Github Stars"
+  "Major mode for browsing a list of your github stars."
+  (setq x-stretch-cursor        nil)
+  (setq tabulated-list-padding  0)
+  (setq tabulated-list-sort-key (cons "Starred" t))
+  (setq tabulated-list-format
+        (vconcat (mapcar (pcase-lambda (`(,title ,width ,_fn ,props))
+                           (nconc (list title width t)
+                                  (apply #'append props)))
+                         github-stars-list-columns)))
+  (tabulated-list-init-header))
+
+;;;###autoload
+(defun github-stars-list ()
+  "Display a list of your github stars."
+  (interactive)
+  (with-current-buffer (get-buffer-create "*Github Stars*")
+    (github-stars-list-mode)
+    (setq tabulated-list-entries
+          (lambda ()
+            (map-apply
+             (lambda (owner/name _alist)
+               (list owner/name
+                     (vconcat (mapcar (pcase-lambda (`(,_ ,_ ,fn ,_))
+                                        (or (funcall fn owner/name) ""))
+                                      github-stars-list-columns))))
+             (github-stars))))
+    (tabulated-list-print)
+    (switch-to-buffer (current-buffer))))
 
 (provide 'github-stars)
 ;;; github-stars.el ends here
