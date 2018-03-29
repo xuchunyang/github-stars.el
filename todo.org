@@ -1,0 +1,11 @@
+* TODO Support Helm/Ivy?
+
+#+begin_src emacs-lisp
+  (eval-after-load 'ivy
+    '(defun github-stars-ivy ...))
+
+  (eval-after-load 'helm
+    '(defun github-stars-helm ...))
+#+end_src
+
+Note that there already is a package for Helm, [[https://github.com/Sliim/helm-github-stars][helm-github-stars]].
