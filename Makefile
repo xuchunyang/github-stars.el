@@ -8,7 +8,7 @@ all: ghub.el
 	$(EMACS) -Q --batch -l ghub.el -f batch-byte-compile github-stars.el
 
 ghub.el:
-	@printf "* Downloading ghub.el..."
+	@printf "* Downloading $@...\n"
 	curl -O https://raw.githubusercontent.com/magit/ghub/master/ghub.el
 
 xuchunyang:
