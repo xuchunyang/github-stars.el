@@ -1,11 +1,15 @@
-* TODO Support Helm/Ivy?
+* TODO 专门给 Helm/Ivy 写个命令
+
+* TODO 用 [[info:cl#Structures][info:cl#Structures]] 表示 Star/Repo
+
+* TODO 像 =M-x debbugs-org-bugs= 那样用 Org Mode 展示
+
+* TODO Emacs Lisp 中如何存储「体积比较大」的数据？
+
+我想把
 
 #+begin_src emacs-lisp
-  (eval-after-load 'ivy
-    '(defun github-stars-ivy ...))
-
-  (eval-after-load 'helm
-    '(defun github-stars-helm ...))
+(ghub-get "/user/starred" nil :unpaginate t)
 #+end_src
 
-Note that there already is a package for Helm, [[https://github.com/Sliim/helm-github-stars][helm-github-stars]].
+的返回值存起来，但是它很大，直接丢在一个变量里合适吗？
