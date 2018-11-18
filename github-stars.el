@@ -198,7 +198,6 @@ an alist that supports the keys `:right-align' and `:pad-right'."
 
 (define-derived-mode github-stars-list-mode tabulated-list-mode "Github Stars"
   "Major mode for browsing a list of your github stars."
-  (setq x-stretch-cursor        nil)
   (setq tabulated-list-padding  0)
   (setq tabulated-list-sort-key (cons "Starred" t))
   (setq tabulated-list-format
