@@ -13,3 +13,7 @@
 #+end_src
 
 的返回值存起来，但是它很大，直接丢在一个变量里合适吗？
+
+* TODO Use Travis CI
+
+* TODO View details of a repository, such as name/url/description/language
