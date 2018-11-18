@@ -146,7 +146,7 @@
   (let ((string (alist-get 'starred-at (gethash owner/name (github-stars)))))
     ;; NOTE One can use `parse-iso8601-time-string' to parse the string
     ;; IDEA Use human-readable format, such as "19 days ago"
-    (substring string 0 (length "1999-12-31"))))
+    (substring string 0 (eval-when-compile (length "1999-12-31")))))
 
 (defun github-stars-list-columns-description (owner/name)
   (alist-get 'description (gethash owner/name (github-stars))))
