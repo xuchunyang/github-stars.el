@@ -7,6 +7,7 @@
 ;; Package-Requires: ((emacs "25.1") (ghub "2.0.0"))
 ;; Keywords: tools
 ;; Created: Tue, 27 Mar 2018 20:59:43 +0800
+;; Version: 0.1
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
