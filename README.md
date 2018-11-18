@@ -2,6 +2,8 @@
 
 [![Melpa](https://melpa.org/packages/github-stars-badge.svg)](https://melpa.org/#/github-stars)
 
+![M-x github-stars-list](screenshot.png)
+
 ## Dependencies
 
 - Emacs 25.1 or later
