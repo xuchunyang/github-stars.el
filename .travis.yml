@@ -1,27 +1,16 @@
-dist: trusty
-sudo: required
-addons:
-  apt:
-    packages:
-      - texinfo
+language: generic
+sudo: false
+
 env:
-  - EMACS_VERSION=25.1-travis
-  # 25.2 is almost the same as 25.3
-  - EMACS_VERSION=25.3-travis
-  - EMACS_VERSION=26.1-travis
+  - EVM_EMACS=emacs-25.1-travis
+  - EVM_EMACS=emacs-25.3-travis
+  - EVM_EMACS=emacs-26.1-travis
 
-matrix:
-  allow_failures:
-    - env: EMACS_VERSION=git-snapshot
-
-install:
-  - curl -fsSkL https://raw.github.com/rejeep/evm/master/go | bash
-  - export PATH="$HOME/.evm/bin:$PATH"
-  - evm config path /tmp
-  - evm install emacs-$EMACS_VERSION
-  - export PATH="/tmp/emacs-$EMACS_VERSION/bin:$PATH"
-
-script:
+before_install:
+  - curl -fsSkL https://gist.github.com/rejeep/ebcd57c3af83b049833b/raw > x.sh && source ./x.sh
+  - evm install $EVM_EMACS --use --skip
   - emacs --version
   - cask install --verbose
+
+script:
   - cask build
