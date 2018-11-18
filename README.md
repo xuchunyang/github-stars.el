@@ -4,11 +4,6 @@
 
 ![M-x github-stars-list](screenshot.png)
 
-## Dependencies
-
-- Emacs 25.1 or later
-- ghub.el
-
 ## Usage
 
 ### `M-x github-stars-browse-url`
