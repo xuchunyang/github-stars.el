@@ -5,6 +5,8 @@ env:
   - EVM_EMACS=emacs-25.1-travis
   - EVM_EMACS=emacs-25.3-travis
   - EVM_EMACS=emacs-26.1-travis
+  # FIXME: https://github.com/rejeep/evm/issues/118
+  # - EVM_EMACS=emacs-26.2-travis
 
 before_install:
   - curl -fsSkL https://gist.github.com/rejeep/ebcd57c3af83b049833b/raw > x.sh && source ./x.sh

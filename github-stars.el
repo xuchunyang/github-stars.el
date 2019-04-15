@@ -30,7 +30,7 @@
 
 (require 'ghub)
 (require 'let-alist)
-(require 'map)
+(require 'map)                          ; FIXME: For what?
 
 (defgroup github-stars nil
   "Browse your github stars."
