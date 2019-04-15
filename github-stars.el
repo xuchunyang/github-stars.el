@@ -88,15 +88,16 @@
 (defun github-stars ()
   "Return hash table listing github stars."
   (unless github-stars
-    (setq github-stars (make-hash-table :test #'equal))
-    (dolist (alist (ghub-get "/user/starred" nil
-                             :query '((per_page . "100"))
-                             :headers '(("Accept" .
-                                         "application/vnd.github.v3.star+json"))
-                             :unpaginate t
-                             :reader #'github-stars--read-response
-                             :auth 'github-stars))
-      (puthash (let-alist alist .owner/name) alist github-stars)))
+    (let ((response (ghub-get "/user/starred" nil
+                              :query '((per_page . "100"))
+                              :headers '(("Accept" .
+                                          "application/vnd.github.v3.star+json"))
+                              :unpaginate t
+                              :reader #'github-stars--read-response
+                              :auth 'github-stars)))
+      (setq github-stars (make-hash-table :test #'equal))
+      (dolist (alist response)
+        (puthash (let-alist alist .owner/name) alist github-stars))))
   github-stars)
 
 ;; https://emacs.stackexchange.com/questions/31448/report-duplicates-in-a-list
